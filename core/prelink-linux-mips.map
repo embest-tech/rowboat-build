@@ -1,0 +1,139 @@
+
+# 0x80000000 - 0xFFFFFFFF Kernel
+# 0x70100000 - 0x7FFFFFFF Thread 0 Stack
+# 0x70000000 - 0x700FFFFF Linker
+# 0x60000000 - 0x6FFFFFFF Prelinked System Libraries
+# 0x50000000 - 0x5FFFFFFF Prelinked App Libraries
+# 0x40000000 - 0x4FFFFFFF Non-prelinked Libraries
+# 0x20000000 - 0x3FFFFFFF mmap'd stuff
+# 0x10000000 - 0x1FFFFFFF Thread Stacks
+# 0x00000000 - 0x0FFFFFFF .text / .data / heap
+
+# core system libraries
+libdl.so                0x6FF00000
+libc.so                 0x6FE00000
+libstdc++.so            0x6FD00000
+libm.so                 0x6FC00000
+liblog.so               0x6FBC0000
+libcutils.so            0x6FB00000
+libthread_db.so         0x6FA00000
+libz.so                 0x6F900000
+libevent.so             0x6F800000
+libssl.so               0x6F700000
+libcrypto.so            0x6F500000
+
+# bluetooth
+liba2dp.so              0x6EE00000
+audio.so                0x6ED00000
+input.so                0x6EC00000
+libhcid.so              0x6EB00000
+libbluedroid.so         0x6EA00000
+libbluetooth.so         0x6E900000
+libdbus.so              0x6E800000
+
+# extended system libraries
+libril.so               0x6E400000
+libreference-ril.so     0x6E000000
+libwpa_client.so        0x6DC00000
+libnetutils.so          0x6DB00000
+
+# core dalvik runtime support
+libandroid_servers.so   0x6D900000
+#libicudata.so           0x6D600000
+libicuuc.so             0x6D500000
+libicui18n.so           0x6D400000
+libandroid_runtime.so   0x6D300000
+libnativehelper.so      0x6D200000
+libdvm-ARM.so           0x6D100000
+libdvm.so               0x6D000000
+
+# graphics
+libpixelflinger.so      0x6CF00000
+libcorecg.so            0x6CE00000
+libsurfaceflinger.so    0x6CD00000
+libagl.so               0x6CC00000
+
+libGLESv1_CM.so         0x6CB00000
+libGLESv2.so            0x6CA00000
+libOpenVG_CM.so         0x6C900000
+libOpenVGU_CM.so        0x6C800000
+libEGL.so               0x6C700000
+
+libexif.so              0x6C500000
+libui.so                0x6C400000
+libsgl.so               0x6C000000
+
+# audio
+libspeech.so            0x6B800000
+libaudio.so             0x6B700000
+libsonivox.so           0x6B600000
+libsoundpool.so         0x6B500000
+libvorbisidec.so        0x6B400000
+libmedia_jni.so         0x6B300000
+libmediaplayerservice.so 0x6B280000
+libmedia.so             0x6B200000
+libFFTEm.so             0x6B100000
+libaudioflinger.so      0x6B000000
+
+# assorted system libraries
+libsqlite.so            0x6AC00000
+libexpat.so             0x6AB00000
+libwebcore.so           0x6A000000
+libutils.so             0x69D00000
+libcameraservice.so     0x69C80000
+libhardware.so          0x69C70000
+libhardware_legacy.so   0x69C00000
+libapp_process.so       0x69B00000
+libsystem_server.so     0x69A00000
+libime.so               0x69800000
+libgps.so               0x69700000
+libcamera.so            0x69680000
+libqcamera.so           0x69400000
+
+# pv libraries
+libopencorenet_support.so     0x67D20000
+libpvasf.so                   0x67BC0000
+libpvasfreg.so                0x67B70000
+libopencoredownload.so        0x67B40000
+libopencoredownloadreg.so     0x67B00000
+libopencorenet_support.so     0x67A00000
+libopencorertsp.so            0x67900000
+libopencorertspreg.so         0x67800000
+libopencoreauthor.so          0x67600000
+libopencorecommon.so          0x67500000
+libopencoremp4.so             0x67400000
+libopencoremp4reg.so          0x67300000
+libopencoreplayer.so          0x67000000
+
+# opencore hardware support
+libmm-adspsvc.so              0x66FFD000
+libOmxCore.so                 0x66FF0000
+libOmxMpeg4Dec.so             0x66FC0000
+libOmxH264Dec.so              0x66F90000
+libOmxVidEnc.so               0x66F60000
+libopencorehw.so              0x66F50000
+
+# libraries for specific apps or temporary libraries
+libcam_ipl.so           0x5F000000
+libwbxml.so             0x5E800000
+libwbxml_jni.so         0x5E400000
+libxml2wbxml.so         0x5E000000
+libaes.so               0x5DC00000
+libdrm1.so              0x5D800000
+libdrm1_jni.so          0x5D400000
+libwapcore.so           0x5D000000
+libstreetview.so        0x5CC00000
+libwapbrowsertest.so    0x5C800000
+libminiglobe.so         0x5C400000
+libearth.so             0x5C000000
+libembunit.so           0x5BC00000
+libneon.so              0x5B800000
+libjni_example.so       0x5B400000
+libjni_load_test.so     0x5B000000
+libjni_lib_test.so      0x5AC00000
+librunperf.so           0x5A800000
+libctest.so             0x5A700000
+libUAPI_jni.so          0x5A500000
+librpc.so               0x5A400000
+libtrace_test.so        0x5A300000
+libsrec_jni.so          0x5A200000
