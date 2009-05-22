@@ -184,8 +184,10 @@ void clone_elf(Elf *elf, Elf *newelf,
 	/* Get the EBL handling. */
 	Ebl *ebl = ebl_openbackend (elf);
 	FAILIF_LIBELF(NULL == ebl, ebl_openbackend);
+#ifdef ARM_SPECIFIC_HACKS
     FAILIF_LIBELF(0 != arm_init(elf, ehdr->e_machine, ebl, sizeof(Ebl)),
                   arm_init);
+#endif
 
     if (strip_debug) {
 
