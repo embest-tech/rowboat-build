@@ -29,6 +29,7 @@ endif
 # the nxp tv543 port, have preconfigured for mips32r2, hard-float.
 #
 MIPS_ENDIAN=-EL
+MIPS_LIB_ENDIAN=el/
 ifeq ($(TARGET_ARCH_VERSION),mips32)
 
 arch_version_cflags := -march=mips32 $(MIPS_ENDIAN)
@@ -47,6 +48,10 @@ $(combo_target)CXX := $($(combo_target)TOOLS_PREFIX)g++$(HOST_EXECUTABLE_SUFFIX)
 $(combo_target)AR := $($(combo_target)TOOLS_PREFIX)ar$(HOST_EXECUTABLE_SUFFIX)
 $(combo_target)OBJCOPY := $($(combo_target)TOOLS_PREFIX)objcopy$(HOST_EXECUTABLE_SUFFIX)
 $(combo_target)LD := $($(combo_target)TOOLS_PREFIX)ld$(HOST_EXECUTABLE_SUFFIX)
+$(combo_target)LIBGCC := \
+	$(shell $($(combo_target)CC) -print-file-name=$(MIPS_LIB_ENDIAN)libgcc.a) \
+        $(shell $($(combo_target)CC) -print-file-name=$(MIPS_LIB_ENDIAN)libgcc_eh.a)
+
 
 $(combo_target)NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 
@@ -85,12 +90,12 @@ libthread_db_root := bionic/libthread_db
 
 
 ## on some hosts, the target cross-compiler is not available so do not run this command
-ifneq ($(wildcard $($(combo_target)CC)),)
+#ifneq ($(wildcard $($(combo_target)CC)),)
 # We compile with the global cflags to ensure that 
 # any flags which affect libgcc are correctly taken
 # into account.
-$(combo_target)LIBGCC := $(shell $($(combo_target)CC) $($(combo_target)GLOBAL_CFLAGS) -print-libgcc-file-name)
-endif
+#$(combo_target)LIBGCC := $(shell $($(combo_target)CC) $($(combo_target)GLOBAL_CFLAGS) -print-libgcc-file-name)
+#endif
 
 # unless CUSTOM_KERNEL_HEADERS is defined, we're going to use
 # symlinks located in out/ to point to the appropriate kernel
