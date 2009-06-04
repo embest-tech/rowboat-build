@@ -177,5 +177,5 @@ $(TARGET_CXX) -nostdlib -Bstatic \
 endef
 
 # We need to set these LOCAL variables, for now.
-LOCAL_ARM_MODE := "mips"
-DISABLE_DEXPREOPT := "true"
+LOCAL_ARM_MODE := mips
+DISABLE_DEXPREOPT := true
