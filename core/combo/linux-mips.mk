@@ -175,3 +175,7 @@ $(TARGET_CXX) -nostdlib -Bstatic \
 	$(TARGET_LIBGCC) \
 	$(TARGET_CRTEND_O)
 endef
+
+# We need to set these LOCAL variables, for now.
+LOCAL_ARM_MODE := "mips"
+DISABLE_DEXPREOPT := "true"
