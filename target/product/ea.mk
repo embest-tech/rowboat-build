@@ -6,10 +6,12 @@ PRODUCT_PACKAGES := \
     AlarmClock \
     AlarmProvider \
     Calendar \
+    Calculator \
     Camera \
     DrmProvider \
     LatinIME \
     Email \
+    IM \
     Music \
     Settings \
     Sync \
