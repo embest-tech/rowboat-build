@@ -7,7 +7,6 @@ PRODUCT_PACKAGES := \
     AlarmProvider \
     Calendar \
     Calculator \
-    Camera \
     DrmProvider \
     LatinIME \
     Email \
