@@ -31,7 +31,7 @@ endif
 MIPS_ENDIAN=-EL
 ifeq ($(TARGET_ARCH_VERSION),mips32)
 
-arch_version_cflags := -march=mips32 $(MIPS_ENDIAN)
+arch_version_cflags := -march=mips32 -msoft-float $(MIPS_ENDIAN)
 else
 $(error Unknown MIPS architecture version: $(TARGET_ARCH_VERSION))
 endif
