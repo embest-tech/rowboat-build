@@ -14,6 +14,7 @@ PRODUCT_PACKAGES := \
     ContactsProvider \
     DownloadProvider \
     GoogleSearch \
+    ImProvider \
     MediaProvider \
     SettingsProvider \
     UserDictionaryProvider \
