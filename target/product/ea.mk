@@ -5,17 +5,14 @@
 PRODUCT_PACKAGES := \
     AlarmClock \
     AlarmProvider \
-    Calendar \
-    Calculator \
     DrmProvider \
+    Camera \
     LatinIME \
     Email \
-    IM \
     Music \
     Settings \
     Sync \
     Updater \
-    CalendarProvider \
     SubscribedFeedsProvider \
     SyncProvider
 
