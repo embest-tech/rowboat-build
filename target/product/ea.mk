@@ -1,8 +1,9 @@
 # This is a generic product that isn't specialized for a specific device.
 # It includes the base Android platform. If you need Google-specific features,
-# you should derive from generic_with_google.mk
+# you should derive from ea_with_google.mk
 
 PRODUCT_PACKAGES := \
+    ApiDemos \
     AlarmClock \
     AlarmProvider \
     DrmProvider \
