@@ -24,13 +24,9 @@ endif
 # fine. If/when this becomes large, please change this to include
 # architecture versions specific Makefiles which define these
 # variables.
-#
-# I don't know how much of this is going to work.  The tools are from
-# the nxp tv543 port, have preconfigured for mips32r2, hard-float.
-#
-MIPS_ENDIAN=-EL
-ifeq ($(TARGET_ARCH_VERSION),mips32)
 
+MIPS_ENDIAN := -EL
+ifeq ($(TARGET_ARCH_VERSION),mips32)
 arch_version_cflags := -march=mips32 -msoft-float $(MIPS_ENDIAN)
 else
 $(error Unknown MIPS architecture version: $(TARGET_ARCH_VERSION))
@@ -50,24 +46,17 @@ $(combo_target)LD := $($(combo_target)TOOLS_PREFIX)ld$(HOST_EXECUTABLE_SUFFIX)
 
 $(combo_target)NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 
-TARGET_mips_release_CFLAGS :=    -O2 \
-				-fPIC \
-                                -fomit-frame-pointer \
-                                -fstrict-aliasing    \
-                                -funswitch-loops     \
-                                -finline-limit=300
-
-android_config_h := $(call select-android-config-h,linux-mips)
-arch_include_dir := $(dir $(android_config_h))
-
 $(combo_target)GLOBAL_CFLAGS += \
-			-fpic \
+			-O2 \
+			-fomit-frame-pointer\
+			-fstrict-aliasing \
+			-funswitch-loops \
+			-fPIC \
 			-ffunction-sections \
 			-funwind-tables \
 			-fno-short-enums \
 			$(arch_version_cflags) \
-			-include $(android_config_h) \
-			-I $(arch_include_dir)
+			-include $(call select-android-config-h,linux-mips)
 
 $(combo_target)GLOBAL_CPPFLAGS += \
 			-fvisibility-inlines-hidden \
@@ -79,6 +68,9 @@ $(combo_target)RELEASE_CFLAGS := \
 			-Wstrict-aliasing=2 \
 			-finline-functions \
 			-fno-inline-functions-called-once \
+			-fgcse-after-reload \
+			-frerun-cse-after-loop \
+			-frename-registers
 
 libc_root := bionic/libc
 libm_root := bionic/libm
@@ -130,7 +122,7 @@ define transform-o-to-shared-lib-inner
 $(TARGET_CXX) \
 	-shared $(MIPS_ENDIAN) \
 	-Wl,-shared,-Bsymbolic \
-	-nostdlib \
+	-fPIC -nostdlib \
 	$(TARGET_GLOBAL_LD_DIRS) \
 	$(TARGET_CRTBEGIN_SO_O) \
 	$(PRIVATE_ALL_OBJECTS) \
