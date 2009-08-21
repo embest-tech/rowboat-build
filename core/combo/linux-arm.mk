@@ -41,6 +41,12 @@ ifeq ($(FORCE_ARM_DEBUGGING),true)
   TARGET_thumb_CFLAGS += -marm -fno-omit-frame-pointer
 endif
 
+# Set BOARD_HAS_ARM_TLS_REG to "true" in your buildspec.mk
+# file if your hardware has a TLS register.
+ifeq ($(BOARD_HAS_ARM_TLS_REG),true)
+  COMMON_GLOBAL_CFLAGS += -DUSE_ARM_TLS_REG
+endif
+
 ## on some hosts, the target cross-compiler is not available so do not run this command
 ifneq ($(wildcard $($(combo_target)CC)),)
 $(combo_target)LIBGCC := $(shell $($(combo_target)CC) -mthumb-interwork -print-libgcc-file-name)
