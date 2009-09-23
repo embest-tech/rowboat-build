@@ -1036,11 +1036,19 @@ endef
 # Because of bug 743462 ("Prelinked image magic gets stripped
 # by arm-elf-objcopy"), we have to use soslim to strip target
 # binaries.
+ifeq ($(TARGET_ARCH),mips)
+define transform-to-stripped
+@mkdir -p $(dir $@)
+@echo "target Strip: $(PRIVATE_MODULE) ($@)"
+$(hide) cp $<  $@
+endef
+else
 define transform-to-stripped
 @mkdir -p $(dir $@)
 @echo "target Strip: $(PRIVATE_MODULE) ($@)"
 $(hide) $(SOSLIM) --strip --shady --quiet $< --outfile $@
 endef
+endif
 
 define transform-to-prelinked
 @mkdir -p $(dir $@)
@@ -1469,6 +1477,19 @@ define copy-file-to-target-with-cp
 $(hide) cp -fp $< $@
 endef
 
+# The same as copy-file-to-target, but use the zipalign tool to do so.
+define copy-file-to-target-with-zipalign
+@mkdir -p $(dir $@)
+$(hide) $(ZIPALIGN) -f 4 $< $@
+endef
+
+# The same as copy-file-to-target, but strip out "# comment"-style
+# comments (for config files and such).
+define copy-file-to-target-strip-comments
+@mkdir -p $(dir $@)
+$(hide) sed -e 's/#.*$$//' -e 's/[ \t]*$$//' -e '/^$$/d' < $< > $@
+endef
+
 # The same as copy-file-to-target, but don't preserve
 # the old modification time.
 define copy-file-to-new-target
@@ -1487,6 +1508,18 @@ endef
 define transform-prebuilt-to-target
 @echo "$(if $(PRIVATE_IS_HOST_MODULE),host,target) Prebuilt: $(PRIVATE_MODULE) ($@)"
 $(copy-file-to-target)
+endef
+
+# Copy a prebuilt file to a target location, using zipalign on it.
+define transform-prebuilt-to-target-with-zipalign
+@echo "$(if $(PRIVATE_IS_HOST_MODULE),host,target) Prebuilt APK: $(PRIVATE_MODULE) ($@)"
+$(copy-file-to-target-with-zipalign)
+endef
+
+# Copy a prebuilt file to a target location, stripping "# comment" comments.
+define transform-prebuilt-to-target-strip-comments
+@echo "$(if $(PRIVATE_IS_HOST_MODULE),host,target) Prebuilt: $(PRIVATE_MODULE) ($@)"
+$(copy-file-to-target-strip-comments)
 endef
 
 
@@ -1547,6 +1580,7 @@ endef
 
 # $(1): The file(s) to check (often $@)
 # $(2): The maximum total image size, in decimal bytes
+# $(3): the type of filesystem "yaffs" or "raw"
 #
 # If $(2) is empty, evaluates to "true"
 #
@@ -1560,9 +1594,15 @@ $(if $(2), \
   printname=$$(echo -n "$(1)" | tr " " +); \
   echo "$$printname total size is $$total"; \
   img_blocksize=$(call image-size-from-data-size,$(BOARD_FLASH_BLOCK_SIZE)); \
+  if [ "$(3)" == "yaffs" ]; then \
+    reservedblocks=5; \
+  else \
+    reservedblocks=0; \
+  fi; \
   twoblocks=$$((img_blocksize * 2)); \
   onepct=$$((((($(2) / 100) - 1) / img_blocksize + 1) * img_blocksize)); \
-  reserve=$$((twoblocks > onepct ? twoblocks : onepct)); \
+  reserve=$$(((twoblocks > onepct ? twoblocks : onepct) + \
+               reservedblocks * img_blocksize)); \
   maxsize=$$(($(2) - reserve)); \
   if [ "$$total" -gt "$$maxsize" ]; then \
     echo "error: $$printname too large ($$total > [$(2) - $$reserve])"; \

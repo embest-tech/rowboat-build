@@ -114,7 +114,7 @@ endif
 # Set up configuration for target machine.
 # The following must be set:
 # 		TARGET_OS = { linux }
-# 		TARGET_ARCH = { arm | x86 }
+# 		TARGET_ARCH = { arm | x86 | mips }
 
 
 # if we're build the simulator, HOST_* is TARGET_* (except for BUILD_TYPE)
