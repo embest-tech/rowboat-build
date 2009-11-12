@@ -5,7 +5,7 @@ include build/core/main.mk
 .PHONY: kernel
 kernel: droid
 ifeq ($(TARGET_PRODUCT), beagleboard)
- 	make -C kernel ARCH=arm omap3_beagle_android_defconfig
+	make -C kernel ARCH=arm omap3_beagle_android_defconfig
 endif
 ifeq ($(TARGET_PRODUCT), omap3evm)
 	make -C kernel ARCH=arm omap3_evm_android_defconfig
