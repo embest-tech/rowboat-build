@@ -14,6 +14,9 @@ endif
 ifeq ($(TARGET_PRODUCT), omap3evm)
 	make -C kernel ARCH=arm omap3_evm_android_defconfig
 endif
+ifeq ($(TARGET_PRODUCT), igepv2)
+	make -C kernel ARCH=arm igep0020_android_defconfig
+endif
 endif
 	make -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) uImage
 
