@@ -34,6 +34,7 @@ ifeq ($(strip $(dvsdk_not_installed)),)
 	touch ./external/ti-dsp/already_clean
 	make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG) clean
 endif
+	./external/ti-dsp/get_tidsp.sh
 	make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG)
 	make
 
