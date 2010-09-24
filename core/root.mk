@@ -28,7 +28,7 @@ ifeq ($(TARGET_PRODUCT), igepv2)
 	make -C kernel ARCH=arm igep0020_android_defconfig
 endif
 endif
-#	make -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) uImage
+	make -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) uImage
 	echo $($(combo_target)TOOLS_PREFIX)
 
 .PHONY: dvsdk
