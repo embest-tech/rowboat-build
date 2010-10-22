@@ -30,29 +30,29 @@ ifeq ($(TARGET_PRODUCT), igepv2)
 	make -C kernel ARCH=arm igep0020_android_defconfig
 endif
 endif
-	make -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) uImage
+	+make -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) uImage
 
 .PHONY: dvsdk
 dvsdk: kernel
 ifeq ($(strip $(dvsdk_not_installed)),)
 	./external/ti-dsp/get_tidsp.sh
 	touch ./external/ti-dsp/already_clean
-	make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG) clean
+	+make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG) clean
 endif
-	make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG)
-	make droid
+	+make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG)
+	+make droid
 
 dvsdk_clean:
-	make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG) clean
+	+make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG) clean
 
 kernel_clean:
-	make -C kernel ARCH=arm clean
+	+make -C kernel ARCH=arm clean
 	rm kernel/.config
 
 sgx: kernel
-	make -C external/ti_android_sgx_sdk ANDROID_ROOT_DIR=`pwd` TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) 
+	+make -C external/ti_android_sgx_sdk ANDROID_ROOT_DIR=`pwd` TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) 
 
 sgx_clean: 
-	make -C external/ti_android_sgx_sdk clean
+	+make -C external/ti_android_sgx_sdk clean
 
 rowboat_clean: clean  dvsdk_clean sgx_clean kernel_clean
