@@ -36,7 +36,7 @@ endif
 .PHONY: dvsdk
 dvsdk: kernel
 ifeq ($(strip $(dvsdk_not_installed)),)
-	./external/ti-dsp/get_tidsp.sh
+	TOOLS_DIR=$(dir `pwd`/$($(combo_target)TOOLS_PREFIX))../ ./external/ti-dsp/get_tidsp.sh
 	touch ./external/ti-dsp/already_clean
 	make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG) clean
 endif
