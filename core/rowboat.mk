@@ -1,5 +1,6 @@
 kernel_not_configured := $(wildcard kernel/.config)
 dvsdk_not_installed := $(wildcard external/ti-dsp/already_clean)
+DSP_PATH := $(wildcard external/ti-dsp)
 
 ifeq ($(TARGET_PRODUCT), beagleboard)
 libdspengineiface_already_built := $(wildcard out/target/product/beagleboard/obj/lib/libdspengineiface.so)
