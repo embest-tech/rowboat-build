@@ -2,16 +2,16 @@
 export TARGET_PRODUCT
 export ANDROID_INSTALL_DIR := $(patsubst %/,%, $(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
 export ANDROID_FS_DIR := $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/android_rootfs
-export SYSLINK_INSTALL_DIR := $(ANDROID_INSTALL_DIR)/hardware/ti/am389x/syslink_vpss/syslink_02_00_00_67_alpha2
-export IPC_INSTALL_DIR := $(ANDROID_INSTALL_DIR)/hardware/ti/am389x/syslink_vpss/ipc_1_22_03_23
+export SYSLINK_INSTALL_DIR := $(ANDROID_INSTALL_DIR)/hardware/ti/ti81xx/syslink_vpss/syslink_02_00_00_67_alpha2
+export IPC_INSTALL_DIR := $(ANDROID_INSTALL_DIR)/hardware/ti/ti81xx/syslink_vpss/ipc_1_22_03_23
 
 kernel_not_configured := $(wildcard kernel/.config)
 
-ifeq ($(TARGET_PRODUCT), am387xevm)
+ifeq ($(TARGET_PRODUCT), ti814xevm)
 export SYSLINK_VARIANT_NAME := TI814X
 rowboat: sgx kernel_modules
 else
-ifeq ($(TARGET_PRODUCT), am389xevm)
+ifeq ($(TARGET_PRODUCT), ti816xevm)
 export SYSLINK_VARIANT_NAME := TI816X
 rowboat: sgx kernel_modules
 else
@@ -43,10 +43,10 @@ endif
 ifeq ($(TARGET_PRODUCT), am3517evm)
 	$(MAKE) -C kernel ARCH=arm am3517_evm_android_defconfig
 endif
-ifeq ($(TARGET_PRODUCT), am387xevm)
+ifeq ($(TARGET_PRODUCT), ti814xevm)
 	$(MAKE) -C kernel ARCH=arm ti8148_evm_android_defconfig
 endif
-ifeq ($(TARGET_PRODUCT), am389xevm)
+ifeq ($(TARGET_PRODUCT), ti816xevm)
 	$(MAKE) -C kernel ARCH=arm ti8168_evm_android_defconfig
 endif
 ifeq ($(TARGET_PRODUCT), am1808evm)
@@ -72,8 +72,7 @@ syslink:
 	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/samples/hlos/procMgr/usr/Linux ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME)  clean
 	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/samples/hlos/procMgr/usr/Linux ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME) 
 	cp -r $(ANDROID_INSTALL_DIR)/device/ti/$(TARGET_PRODUCT)/syslink $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/system/bin
-	cp -r $(SYSLINK_INSTALL_DIR)/ti/syslink/bin/$(SYSLINK_VARIANT_NAME)/syslink.ko $(SYSLINK_INSTALL_DIR)/ti/syslink/bin/$(SYSLINK_VARIANT_NAME)/samples/procmgrapp_release $(ANDROID_INSTALL_DIR)/hardware/ti/am389x/syslink_vpss/hdvpss/$(SYSLINK_VARIANT_NAME)/* $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/system/bin/syslink/
-
+	cp -r $(SYSLINK_INSTALL_DIR)/ti/syslink/bin/$(SYSLINK_VARIANT_NAME)/syslink.ko $(SYSLINK_INSTALL_DIR)/ti/syslink/bin/$(SYSLINK_VARIANT_NAME)/samples/procmgrapp_release $(ANDROID_INSTALL_DIR)/hardware/ti/ti81xx/syslink_vpss/hdvpss/$(SYSLINK_VARIANT_NAME)/* $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/system/bin/syslink/
 
 # Build VPSS / HDMI modules
 kernel_modules:	syslink
