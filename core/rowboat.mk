@@ -2,16 +2,6 @@ kernel_not_configured := $(wildcard kernel/.config)
 dvsdk_not_installed := $(wildcard external/ti-dsp/already_clean)
 DSP_PATH := $(wildcard external/ti-dsp)
 
-ifeq ($(TARGET_PRODUCT), beagleboard)
-libdspengineiface_already_built := $(wildcard out/target/product/beagleboard/obj/lib/libdspengineiface.so)
-endif
-ifeq ($(TARGET_PRODUCT), omap3evm)
-libdspengineiface_already_built := $(wildcard out/target/product/omap3evm/obj/lib/libdspengineiface.so)
-endif
-ifeq ($(TARGET_PRODUCT), igepv2)
-libdspengineiface_already_built := $(wildcard out/target/product/igepv2/obj/lib/libdspengineiface.so)
-endif
-
 rowboat: dvsdk sgx
 
 .PHONY: kernel
@@ -38,7 +28,6 @@ ifeq ($(strip $(dvsdk_not_installed)),)
 endif
 	make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG)
 	make -C hardware/ti/omx combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG)
-	make droid
 
 dvsdk_clean:
 	make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG) clean
