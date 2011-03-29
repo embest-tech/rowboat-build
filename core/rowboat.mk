@@ -2,6 +2,8 @@ kernel_not_configured := $(wildcard kernel/.config)
 dvsdk_not_installed := $(wildcard external/ti-dsp/already_clean)
 DSP_PATH := $(wildcard external/ti-dsp)
 
+OMAPES := 5.x
+
 rowboat: dvsdk sgx
 
 .PHONY: kernel
@@ -37,9 +39,10 @@ kernel_clean:
 	rm kernel/.config
 
 sgx: kernel
-	make -C external/ti_android_sgx_sdk ANDROID_ROOT_DIR=`pwd` TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) 
+	make -C hardware/ti/sgx ANDROID_ROOT_DIR=`pwd` TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) OMAPES=$(OMAPES)
+	make -C hardware/ti/sgx ANDROID_ROOT_DIR=`pwd` TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) OMAPES=$(OMAPES) install
 
 sgx_clean: 
-	make -C external/ti_android_sgx_sdk clean
+	make -C hardware/ti/sgx OMAPES=$(OMAPES) clean
 
 rowboat_clean: clean  dvsdk_clean sgx_clean kernel_clean
