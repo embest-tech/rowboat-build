@@ -179,6 +179,7 @@ libhtc_acoustic.so      0xA2D00000 # [<64K]
 libhtc_ril.so           0xA2C00000 # [~1M]
 liblvmxipc.so           0xA2B00000 # [~1M] for vendor/nxp
 libreference-cdma-sms.so 0xA2A00000 # [<64K] for hardware/ril
+libOMX_Core.so          0xA2900000 # [~1M] size when added: 0x000EAE9C
 
 # libraries for specific apps or temporary libraries
 libcam_ipl.so           0x9F000000 # [???]
