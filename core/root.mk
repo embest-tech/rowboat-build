@@ -52,6 +52,9 @@ endif
 ifeq ($(TARGET_PRODUCT), am1808evm)
 	$(MAKE) -C kernel ARCH=arm ti8168_evm_android_defconfig #TBD
 endif
+ifeq ($(TARGET_PRODUCT), am45xevm)
+	$(MAKE) -C kernel ARCH=arm am4530_evm_android_defconfig
+endif
 endif
 	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) uImage
 
