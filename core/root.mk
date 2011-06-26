@@ -71,6 +71,9 @@ ifeq ($(TARGET_PRODUCT), am45xevm)
 endif
 endif
 	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) uImage
+#ifeq ($(TARGET_PRODUCT), igepv2)
+	$(MAKE) -f device/ti/$(TARGET_PRODUCT)/AndroidKernel.mk
+#endif
 
 sgx: build_kernel
 	$(MAKE) -C hardware/ti/sgx ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) 
