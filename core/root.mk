@@ -14,7 +14,7 @@ else
 ifeq ($(TARGET_PRODUCT), ti816xevm)
 export SYSLINK_VARIANT_NAME := TI816X
 rowboat: droid sgx kernel_modules
-droid:   build_kernel
+droid:   build_kernel install_mc_dsp
 else
 ifeq ($(TARGET_PRODUCT), omap3evm)
 rowboat: sgx wl12xx_compat
@@ -89,6 +89,10 @@ kernel_modules:	build_kernel syslink droid
 	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) KBUILD_EXTRA_SYMBOLS=$(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/knl/Linux/Module.symvers SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages modules
 	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) KBUILD_EXTRA_SYMBOLS=$(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/knl/Linux/Module.symvers SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages INSTALL_MOD_PATH=$(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/system/ modules_install
 	
+# Install Media Controller / DSP Software Components for TI81xx
+install_mc_dsp: hardware/ti/ti81xx/.mc_dsp_components_installed
+hardware/ti/ti81xx/.mc_dsp_components_installed:
+	(cd hardware/ti/ti81xx; ./install_mc_dsp_components.sh)
 
 # Make a tarball for the filesystem
 fs_tarball: 
