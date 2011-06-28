@@ -2,8 +2,8 @@
 export TARGET_PRODUCT
 export ANDROID_INSTALL_DIR := $(patsubst %/,%, $(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
 export ANDROID_FS_DIR := $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/android_rootfs
-export SYSLINK_INSTALL_DIR := $(ANDROID_INSTALL_DIR)/hardware/ti/ti81xx/syslink_vpss/syslink_02_00_00_67_alpha2
-export IPC_INSTALL_DIR := $(ANDROID_INSTALL_DIR)/hardware/ti/ti81xx/syslink_vpss/ipc_1_22_03_23
+export SYSLINK_INSTALL_DIR := $(ANDROID_INSTALL_DIR)/hardware/ti/ti81xx/syslink
+export IPC_INSTALL_DIR := $(ANDROID_INSTALL_DIR)/hardware/ti/ti81xx/ipc
 
 kernel_not_configured := $(wildcard kernel/.config)
 
@@ -70,22 +70,8 @@ sgx: build_kernel droid
 wl12xx_compat: build_kernel
 	$(MAKE) -C hardware/ti/wlan/WL1271_compat ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) ARCH=arm install
 
-
-# Build Syslink
-syslink: build_kernel droid
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/knl/Linux ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME) clean
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/knl/Linux ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME) 
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/usr/Linux ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME)  clean
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/usr/Linux ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME) 
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/samples/hlos/common/usr/Linux/ ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages  SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME) clean
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/samples/hlos/common/usr/Linux/ ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME) 
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/samples/hlos/procMgr/usr/Linux ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME)  clean
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/samples/hlos/procMgr/usr/Linux ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME) 
-	cp -r $(ANDROID_INSTALL_DIR)/device/ti/$(TARGET_PRODUCT)/syslink $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/system/bin
-	cp -r $(SYSLINK_INSTALL_DIR)/ti/syslink/bin/$(SYSLINK_VARIANT_NAME)/syslink.ko $(SYSLINK_INSTALL_DIR)/ti/syslink/bin/$(SYSLINK_VARIANT_NAME)/samples/procmgrapp_release $(ANDROID_INSTALL_DIR)/hardware/ti/ti81xx/syslink_vpss/hdvpss/$(SYSLINK_VARIANT_NAME)/* $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/system/bin/syslink/
-
 # Build VPSS / HDMI modules
-kernel_modules:	build_kernel syslink droid
+kernel_modules:	build_kernel droid
 	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) KBUILD_EXTRA_SYMBOLS=$(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/knl/Linux/Module.symvers SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages modules
 	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) KBUILD_EXTRA_SYMBOLS=$(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/knl/Linux/Module.symvers SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages INSTALL_MOD_PATH=$(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/system/ modules_install
 	
@@ -110,17 +96,9 @@ kernel_clean:
 sgx_clean: 
 	$(MAKE) -C hardware/ti/sgx ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) clean
 
-# Clean Syslink
-syslink_clean:
-	@echo "syslink clean"
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/knl/Linux ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME) clean
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/usr/Linux ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME)  clean
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/samples/hlos/common/usr/Linux/ ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages  SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME) clean
-	$(MAKE) -C $(SYSLINK_INSTALL_DIR)/ti/syslink/samples/hlos/procMgr/usr/Linux ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) SYSLINK_PLATFORM=TI81XX ANDROID_ROOT=$(ANDROID_INSTALL_DIR) SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages SYSLINK_VARIANT=$(SYSLINK_VARIANT_NAME)  clean
-
 # Remove filesystem
 fs_clean:
 	rm -rf $(ANDROID_FS_DIR)
 	rm -f $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/rootfs.tar.bz2
 
-rowboat_clean: clean sgx_clean kernel_clean fs_clean syslink_clean
+rowboat_clean: clean sgx_clean kernel_clean fs_clean
