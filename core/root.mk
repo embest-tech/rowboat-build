@@ -18,10 +18,14 @@ else
 ifeq ($(TARGET_PRODUCT), omap3evm)
 rowboat: sgx wl12xx_compat
 else
+ifeq ($(TARGET_PRODUCT), flashboard)
+rowboat: sgx wl12xx_compat
+else
 ifneq ($(TARGET_PRODUCT), am1808evm)
 rowboat: sgx
 else 
 rowboat: build_kernel
+endif
 endif
 endif
 endif
@@ -40,6 +44,9 @@ ifeq ($(TARGET_PRODUCT), beagleboard)
 endif
 ifeq ($(TARGET_PRODUCT), omap3evm)
 	$(MAKE) -C kernel ARCH=arm omap3_evm_android_defconfig
+endif
+ifeq ($(TARGET_PRODUCT), flashboard)
+	$(MAKE) -C kernel ARCH=arm flashboard_android_defconfig
 endif
 ifeq ($(TARGET_PRODUCT), igepv2)
 	$(MAKE) -C kernel ARCH=arm igep0020_android_defconfig
@@ -105,6 +112,9 @@ kernel_clean:
 sgx_clean: 
 	$(MAKE) -C hardware/ti/sgx ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) clean
 
+wl12xx_compat_clean:
+	$(MAKE) -C hardware/ti/wlan/WL1271_compat ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) ARCH=arm clean
+
 # Clean Syslink
 syslink_clean:
 	@echo "syslink clean"
@@ -118,4 +128,4 @@ fs_clean:
 	rm -rf $(ANDROID_FS_DIR)
 	rm -f $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/rootfs.tar.bz2
 
-rowboat_clean: clean sgx_clean kernel_clean fs_clean syslink_clean
+rowboat_clean: clean wl12xx_compat_clean sgx_clean kernel_clean fs_clean syslink_clean
