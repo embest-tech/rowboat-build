@@ -72,7 +72,7 @@ $(info Checking build tools versions...)
 
 ifeq ($(BUILD_OS),linux)
 build_arch := $(shell uname -m)
-ifneq (64,$(findstring 64,$(build_arch)))
+ifneq (i686,$(findstring i686,$(build_arch)))
 $(warning ************************************************************)
 $(warning You are attempting to build on a 32-bit system.)
 $(warning Only 64-bit build environments are supported beyond froyo/2.2.)

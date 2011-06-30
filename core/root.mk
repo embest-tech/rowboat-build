@@ -54,6 +54,9 @@ endif
 ifeq ($(TARGET_PRODUCT), am3517evm)
 	$(MAKE) -C kernel ARCH=arm am3517_evm_android_defconfig
 endif
+ifeq ($(TARGET_PRODUCT), am3517crane)
+	$(MAKE) -C kernel ARCH=arm am3517_crane_android_defconfig
+endif
 ifeq ($(TARGET_PRODUCT), ti814xevm)
 	$(MAKE) -C kernel ARCH=arm ti8148_evm_android_defconfig
 endif
