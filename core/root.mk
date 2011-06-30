@@ -113,7 +113,7 @@ sgx_clean:
 	$(MAKE) -C hardware/ti/sgx ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) clean
 
 wl12xx_compat_clean:
-	$(MAKE) -C hardware/ti/wlan/WL1271_compat ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) ARCH=arm clean
+	$(MAKE) -C hardware/ti/wlan/WL1271_compat/drivers ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) ARCH=arm clean
 
 # Clean Syslink
 syslink_clean:
