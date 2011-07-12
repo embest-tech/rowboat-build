@@ -31,9 +31,15 @@ endif
 	make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG)
 	make -C hardware/ti/omx combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG)
 
+.PHONY: dvsdk_clean
 dvsdk_clean:
 	make -C hardware/ti/omx OMAPES=$(OMAPES) clean
 	make -C external/ti-dsp combo_target=$(combo_target) $(combo_target)TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) HOST_PREBUILT_TAG=$(HOST_PREBUILT_TAG) clean
+
+.PHONY: dvsdk_distclean
+dvsdk_distclean:
+	make -C hardware/ti/omx OMAPES=$(OMAPES) clean
+	make -C external/ti-dsp OMAPES=$(OMAPES) distclean
 
 kernel_clean:
 	make -C kernel ARCH=arm clean
