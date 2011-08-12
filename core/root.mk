@@ -2,8 +2,6 @@
 export TARGET_PRODUCT
 export ANDROID_INSTALL_DIR := $(patsubst %/,%, $(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
 export ANDROID_FS_DIR := $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/android_rootfs
-export SYSLINK_INSTALL_DIR := $(ANDROID_INSTALL_DIR)/hardware/ti/ti81xx/syslink
-export IPC_INSTALL_DIR := $(ANDROID_INSTALL_DIR)/hardware/ti/ti81xx/ipc
 
 kernel_not_configured := $(wildcard kernel/.config)
 
@@ -72,9 +70,9 @@ wl12xx_compat: build_kernel
 	$(MAKE) -C hardware/ti/wlan/WL1271_compat ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) ARCH=arm install
 
 # Build VPSS / HDMI modules
-kernel_modules:	build_kernel droid
-	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) KBUILD_EXTRA_SYMBOLS=$(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/knl/Linux/Module.symvers SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages modules
-	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) KBUILD_EXTRA_SYMBOLS=$(SYSLINK_INSTALL_DIR)/ti/syslink/utils/hlos/knl/Linux/Module.symvers SYSLINK_ROOT=$(SYSLINK_INSTALL_DIR) IPCDIR=$(IPC_INSTALL_DIR)/packages INSTALL_MOD_PATH=$(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/system/ modules_install
+kernel_modules:	build_kernel
+	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) modules
+	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) INSTALL_MOD_PATH=$(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/system/ modules_install
 	
 # Install Media Controller / DSP Software Components for TI81xx
 install_mc_dsp: hardware/ti/ti81xx/.mc_dsp_components_installed
