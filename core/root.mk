@@ -9,7 +9,8 @@ kernel_not_configured := $(wildcard kernel/.config)
 
 ifeq ($(TARGET_PRODUCT), ti814xevm)
 export SYSLINK_VARIANT_NAME := TI814X
-rowboat: sgx kernel_modules
+rowboat: droid sgx kernel_modules
+droid:   build_kernel install_mc_dsp
 else
 ifeq ($(TARGET_PRODUCT), ti816xevm)
 export SYSLINK_VARIANT_NAME := TI816X
