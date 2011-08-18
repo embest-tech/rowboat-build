@@ -12,6 +12,9 @@ ifeq ($(TARGET_PRODUCT), ti814xevm)
 export SYSLINK_VARIANT_NAME := TI814X
 rowboat: sgx kernel_modules
 else
+ifeq ($(TARGET_PRODUCT), am335xevm)
+rowboat: droid
+else
 ifeq ($(TARGET_PRODUCT), ti816xevm)
 export SYSLINK_VARIANT_NAME := TI816X
 rowboat: sgx kernel_modules
