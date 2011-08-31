@@ -1,3 +1,6 @@
+# Include rowboat defenitions first to override default target
+include  $(TOPDIR)build/core/rowboat.mk
+
 # Only use ANDROID_BUILD_SHELL to wrap around bash.
 # DO NOT use other shells such as zsh.
 ifdef ANDROID_BUILD_SHELL
