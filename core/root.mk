@@ -12,9 +12,6 @@ ifeq ($(TARGET_PRODUCT), ti814xevm)
 export SYSLINK_VARIANT_NAME := TI814X
 rowboat: sgx kernel_modules
 else
-ifeq ($(TARGET_PRODUCT), am335xevm)
-rowboat: droid
-else
 ifeq ($(TARGET_PRODUCT), ti816xevm)
 export SYSLINK_VARIANT_NAME := TI816X
 rowboat: sgx kernel_modules
@@ -29,7 +26,6 @@ ifneq ($(TARGET_PRODUCT), am1808evm)
 rowboat: sgx
 else 
 rowboat: build_kernel
-endif
 endif
 endif
 endif
@@ -73,6 +69,9 @@ ifeq ($(TARGET_PRODUCT), am1808evm)
 endif
 ifeq ($(TARGET_PRODUCT), am45xevm)
 	$(MAKE) -C kernel ARCH=arm am4530_evm_android_defconfig
+endif
+ifeq ($(TARGET_PRODUCT), am335xevm)
+	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
 endif
 endif
 	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) uImage
