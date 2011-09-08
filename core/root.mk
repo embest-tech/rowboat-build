@@ -73,6 +73,9 @@ endif
 ifeq ($(TARGET_PRODUCT), am335xevm)
 	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
 endif
+ifeq ($(TARGET_PRODUCT), overo)
+	$(MAKE) -C kernel ARCH=arm overo_android_defconfig
+endif
 endif
 	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) uImage
 ifeq ($(TARGET_PRODUCT), igepv2)
