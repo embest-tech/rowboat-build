@@ -1,18 +1,18 @@
 # Component Path Configuration
 export TARGET_PRODUCT
-export ANDROID_INSTALL_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))/../..
+export ANDROID_INSTALL_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
 export ANDROID_FS_DIR := $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/android_rootfs
 
 kernel_not_configured := $(wildcard kernel/.config)
 
 ifeq ($(TARGET_PRODUCT), ti814xevm)
 export SYSLINK_VARIANT_NAME := TI814X
-rowboat: droid sgx kernel_modules
+rowboat: droid sgx kernel_modules build_u-boot
 droid:   build_kernel install_mc_dsp
 else
 ifeq ($(TARGET_PRODUCT), ti816xevm)
 export SYSLINK_VARIANT_NAME := TI816X
-rowboat: droid sgx kernel_modules
+rowboat: droid sgx kernel_modules build_u-boot
 droid:   build_kernel install_mc_dsp
 else
 ifeq ($(TARGET_PRODUCT), omap3evm)
@@ -74,6 +74,29 @@ kernel_modules:	build_kernel
 install_mc_dsp: hardware/ti/ti81xx/.mc_dsp_components_installed
 hardware/ti/ti81xx/.mc_dsp_components_installed:
 	(cd hardware/ti/ti81xx; ./install_mc_dsp_components.sh)
+
+# Build u-boot
+build_u-boot:
+ifeq ($(TARGET_PRODUCT), ti816xevm)
+	@echo "Building u-boot for TI816x"
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) distclean
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) ti8168_evm_min_sd
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) u-boot.ti
+	mv u-boot/u-boot.min.sd u-boot/MLO
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) distclean
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) ti8168_evm_config
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) u-boot.ti
+endif
+ifeq ($(TARGET_PRODUCT), ti814xevm)
+	@echo "Building u-boot for TI814x"
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) distclean
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) ti8148_evm_min_sd
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) u-boot.ti
+	mv u-boot/u-boot.min.sd u-boot/MLO
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) distclean
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) ti8148_evm_config
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=$(ANDROID_INSTALL_DIR)/$($(combo_target)TOOLS_PREFIX) u-boot.ti
+endif
 
 # Make a tarball for the filesystem
 fs_tarball: 
