@@ -10,11 +10,11 @@ kernel_not_configured := $(wildcard kernel/.config)
 
 ifeq ($(TARGET_PRODUCT), ti814xevm)
 export SYSLINK_VARIANT_NAME := TI814X
-rowboat: sgx kernel_modules
+rowboat: sgx
 else
 ifeq ($(TARGET_PRODUCT), ti816xevm)
 export SYSLINK_VARIANT_NAME := TI816X
-rowboat: sgx kernel_modules
+rowboat: sgx
 else
 ifeq ($(TARGET_PRODUCT), omap3evm)
 rowboat: sgx wl12xx_compat
@@ -83,7 +83,15 @@ ifeq ($(TARGET_PRODUCT), igepv2)
 	$(MAKE) -f device/ti/$(TARGET_PRODUCT)/AndroidKernel.mk
 endif
 
+ifeq ($(TARGET_PRODUCT),ti816xevm)
+sgx: build_kernel kernel_modules
+else
+ifeq ($(TARGET_PRDUCT),ti814xevm)
+sgx: build_kernel kernel_modules
+else
 sgx: build_kernel
+endif
+endif
 	$(MAKE) -C hardware/ti/sgx ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) 
 	$(MAKE) -C hardware/ti/sgx ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) install
 
