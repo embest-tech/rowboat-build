@@ -22,10 +22,14 @@ else
 ifeq ($(TARGET_PRODUCT), flashboard)
 rowboat: sgx wl12xx_compat
 else
+ifeq ($(TARGET_PRODUCT), am335xevm)
+rowboat: sgx wl12xx_compat modules
+else
 ifneq ($(TARGET_PRODUCT), am1808evm)
 rowboat: sgx
 else 
 rowboat: build_kernel
+endif
 endif
 endif
 endif
@@ -98,6 +102,9 @@ endif
 wl12xx_compat: build_kernel
 	$(MAKE) -C hardware/ti/wlan/WL1271_compat/drivers ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) ARCH=arm install
 
+modules: build_kernel
+	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=../$($(combo_target)TOOLS_PREFIX) modules
+	$(MAKE) -f device/ti/$(TARGET_PRODUCT)/AndroidKernel.mk
 
 # Build Syslink
 syslink:
