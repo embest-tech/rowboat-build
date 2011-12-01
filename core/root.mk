@@ -10,27 +10,35 @@ kernel_not_configured := $(wildcard kernel/.config)
 
 ifeq ($(TARGET_PRODUCT), ti814xevm)
 export SYSLINK_VARIANT_NAME := TI814X
+CLEAN_RULES := syslink_clean sgx_clean kernel_clean clean
 rowboat: sgx
 else
 ifeq ($(TARGET_PRODUCT), ti816xevm)
 export SYSLINK_VARIANT_NAME := TI816X
+CLEAN_RULES := syslink_clean sgx_clean kernel_clean clean
 rowboat: sgx
 else
 ifeq ($(TARGET_PRODUCT), omap3evm)
+CLEAN_RULES := wl12xx_compat_clean sgx_clean kernel_clean clean
 rowboat: sgx wl12xx_compat
 else
 ifeq ($(TARGET_PRODUCT), flashboard)
+CLEAN_RULES := wl12xx_compat_clean sgx_clean kernel_clean clean
 rowboat: sgx wl12xx_compat
 else
 ifeq ($(TARGET_PRODUCT), am335xevm)
+CLEAN_RULES := wl12xx_compat_clean sgx_clean kernel_clean clean
 rowboat: sgx wl12xx_compat am335xevm_modules
 else
 ifeq ($(TARGET_PRODUCT), beaglebone)
+CLEAN_RULES := sgx_clean kernel_clean clean
 rowboat: sgx beaglebone_modules
 else
 ifneq ($(TARGET_PRODUCT), am1808evm)
+CLEAN_RULES := sgx_clean kernel_clean clean
 rowboat: sgx
 else 
+CLEAN_RULES := kernel_clean clean
 rowboat: build_kernel
 endif
 endif
@@ -154,8 +162,7 @@ fs_tarball:
 	 ../../../../build/tools/mktarball.sh ../../../host/linux-x86/bin/fs_get_stats android_rootfs . rootfs rootfs.tar.bz2)
 
 kernel_clean:
-	$(MAKE) -C kernel ARCH=arm clean
-	rm kernel/.config
+	$(MAKE) -C kernel ARCH=arm distclean
 
 sgx_clean: 
 	$(MAKE) -C hardware/ti/sgx ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) TOOLS_PREFIX=$($(combo_target)TOOLS_PREFIX) clean
@@ -176,4 +183,4 @@ fs_clean:
 	rm -rf $(ANDROID_FS_DIR)
 	rm -f $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/rootfs.tar.bz2
 
-rowboat_clean: clean wl12xx_compat_clean sgx_clean kernel_clean fs_clean syslink_clean
+rowboat_clean: $(CLEAN_RULES)
