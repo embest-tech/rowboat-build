@@ -36,11 +36,16 @@ ifeq ($(TARGET_PRODUCT), am335xevm)
 rowboat: sgx wl12xx_compat
 CLEAN_RULE = wl12xx_compat_clean sgx_clean kernel_clean clean
 else
+ifeq ($(TARGET_PRODUCT), am335xevm_sk)
+rowboat: sgx wl12xx_compat
+CLEAN_RULE = wl12xx_compat_clean sgx_clean kernel_clean clean
+else
 ifeq ($(TARGET_PRODUCT), beaglebone)
 rowboat: sgx
 CLEAN_RULE = sgx_clean kernel_clean clean
 else
 rowboat: kernel_build
+endif
 endif
 endif
 endif
@@ -68,6 +73,9 @@ ifeq ($(TARGET_PRODUCT), ti816xevm)
 endif
 ifeq ($(TARGET_PRODUCT), am335xevm)
 	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
+endif
+ifeq ($(TARGET_PRODUCT), am335xevm_sk)
+        $(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
 endif
 ifeq ($(TARGET_PRODUCT), beaglebone)
 	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
