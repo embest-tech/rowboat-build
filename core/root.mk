@@ -75,7 +75,7 @@ ifeq ($(TARGET_PRODUCT), am335xevm)
 	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
 endif
 ifeq ($(TARGET_PRODUCT), am335xevm_sk)
-        $(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
+	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
 endif
 ifeq ($(TARGET_PRODUCT), beaglebone)
 	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
