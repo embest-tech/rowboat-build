@@ -10,6 +10,10 @@ ifeq ($(TARGET_PRODUCT), am335xevm_sk)
 rowboat: sgx
 CLEAN_RULE = sgx_clean kernel_clean clean
 else
+ifeq ($(TARGET_PRODUCT), beaglebone)
+rowboat: sgx
+CLEAN_RULE = sgx_clean kernel_clean clean
+else
 ifeq ($(TARGET_PRODUCT), beagleboard)
 rowboat: sgx
 CLEAN_RULE = sgx_clean kernel_clean clean
@@ -17,10 +21,14 @@ else
 rowboat: kernel_build
 endif
 endif
+endif
 
 kernel_build: droid
 ifeq ($(strip $(kernel_not_configured)),)
 ifeq ($(TARGET_PRODUCT), am335xevm_sk)
+	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
+endif
+ifeq ($(TARGET_PRODUCT), beaglebone)
 	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
 endif
 ifeq ($(TARGET_PRODUCT), beagleboard)
