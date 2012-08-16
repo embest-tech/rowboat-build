@@ -51,6 +51,14 @@ sgx: kernel_build
 sgx_clean:
 	$(MAKE) -C hardware/ti/sgx ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) clean
 
+u-boot_build:
+ifeq ($(TARGET_PRODUCT), beaglebone)
+	$(MAKE) -C u-boot ARCH=arm am335x_evm_config
+endif
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=arm-eabi-
+
+u-boot_clean:
+	$(MAKE) -C u-boot ARCH=arm distclean
 
 # Make a tarball for the filesystem
 fs_tarball:
