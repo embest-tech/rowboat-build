@@ -58,7 +58,7 @@ endif
 	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=arm-eabi-
 
 u-boot_clean:
-	$(MAKE) -C u-boot ARCH=arm distclean
+	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=arm-eabi- distclean
 
 # Make a tarball for the filesystem
 fs_tarball:
