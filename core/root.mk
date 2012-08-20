@@ -14,11 +14,16 @@ ifeq ($(TARGET_PRODUCT), beaglebone)
 rowboat: sgx
 CLEAN_RULE = sgx_clean kernel_clean clean
 else
+ifeq ($(TARGET_PRODUCT), am335xevm)
+rowboat: sgx
+CLEAN_RULE = sgx_clean kernel_clean clean
+else
 ifeq ($(TARGET_PRODUCT), beagleboard)
 rowboat: sgx
 CLEAN_RULE = sgx_clean kernel_clean clean
 else
 rowboat: kernel_build
+endif
 endif
 endif
 endif
@@ -29,6 +34,9 @@ ifeq ($(TARGET_PRODUCT), am335xevm_sk)
 	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
 endif
 ifeq ($(TARGET_PRODUCT), beaglebone)
+	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
+endif
+ifeq ($(TARGET_PRODUCT), am335xevm)
 	$(MAKE) -C kernel ARCH=arm am335x_evm_android_defconfig
 endif
 ifeq ($(TARGET_PRODUCT), beagleboard)
@@ -53,6 +61,9 @@ sgx_clean:
 
 u-boot_build:
 ifeq ($(TARGET_PRODUCT), beaglebone)
+	$(MAKE) -C u-boot ARCH=arm am335x_evm_config
+endif
+ifeq ($(TARGET_PRODUCT), am335xevm)
 	$(MAKE) -C u-boot ARCH=arm am335x_evm_config
 endif
 	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=arm-eabi-
