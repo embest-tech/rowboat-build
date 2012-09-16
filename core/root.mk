@@ -15,8 +15,8 @@ rowboat: sgx
 CLEAN_RULE = sgx_clean kernel_clean clean
 else
 ifeq ($(TARGET_PRODUCT), am335xevm)
-rowboat: sgx
-CLEAN_RULE = sgx_clean kernel_clean clean
+rowboat: sgx wl12xx_compat
+CLEAN_RULE = sgx_clean wl12xx_compat_clean kernel_clean clean
 else
 ifeq ($(TARGET_PRODUCT), beagleboard)
 rowboat: sgx
@@ -66,6 +66,12 @@ sgx: kernel_build
 
 sgx_clean:
 	$(MAKE) -C hardware/ti/sgx ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) clean
+
+wl12xx_compat: kernel_build
+	$(MAKE) -C hardware/ti/wlan/mac80211/compat_wl12xx ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) CROSS_COMPILE=arm-eabi- ARCH=arm install
+
+wl12xx_compat_clean:
+	$(MAKE) -C hardware/ti/wlan/mac80211/compat_wl12xx ANDROID_ROOT_DIR=$(ANDROID_INSTALL_DIR) CROSS_COMPILE=arm-eabi- ARCH=arm clean
 
 u-boot_build:
 ifeq ($(TARGET_PRODUCT), beaglebone)
