@@ -26,7 +26,12 @@ ifeq ($(TARGET_PRODUCT), omap3evm)
 rowboat: sgx wl12xx_compat
 CLEAN_RULE = sgx_clean wl12xx_compat_clean kernel_clean clean
 else
+ifeq ($(TARGET_PRODUCT), flashboard)
+rowboat: sgx wl12xx_compat
+CLEAN_RULE = sgx_clean wl12xx_compat_clean kernel_clean clean
+else
 rowboat: kernel_build
+endif
 endif
 endif
 endif
@@ -49,6 +54,9 @@ ifeq ($(TARGET_PRODUCT), beagleboard)
 endif
 ifeq ($(TARGET_PRODUCT), omap3evm)
 	$(MAKE) -C kernel ARCH=arm omap3_evm_android_defconfig
+endif
+ifeq ($(TARGET_PRODUCT), flashboard)
+	$(MAKE) -C kernel ARCH=arm flashboard_android_defconfig
 endif
 endif
 	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=arm-eabi- uImage
