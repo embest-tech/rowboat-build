@@ -93,6 +93,9 @@ u-boot_build:
 ifeq ($(TARGET_PRODUCT), beaglebone)
 	$(MAKE) -C u-boot ARCH=arm am335x_evm_config
 endif
+ifeq ($(TARGET_PRODUCT), am335xevm_sk)
+	$(MAKE) -C u-boot ARCH=arm am335x_evm_config
+endif
 ifeq ($(TARGET_PRODUCT), am335xevm)
 	$(MAKE) -C u-boot ARCH=arm am335x_evm_config
 endif
