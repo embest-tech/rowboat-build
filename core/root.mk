@@ -110,4 +110,13 @@ fs_tarball:
 	(cd $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT); \
 	 ../../../../build/tools/mktarball.sh ../../../host/linux-x86/bin/fs_get_stats android_rootfs . rootfs rootfs.tar.bz2)
 
+# Make NFS tarball of the filesystem
+nfs_tarball:
+	rm -rf $(ANDROID_FS_DIR)
+	mkdir $(ANDROID_FS_DIR)
+	cp -r $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/root/* $(ANDROID_FS_DIR)
+	cp -r $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT)/system/ $(ANDROID_FS_DIR)
+	(cd $(ANDROID_INSTALL_DIR)/out/target/product/$(TARGET_PRODUCT); \
+	tar cvjf nfs-rootfs.tar.bz2 android_rootfs)
+
 rowboat_clean: $(CLEAN_RULE)
