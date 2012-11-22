@@ -99,10 +99,38 @@ endif
 ifeq ($(TARGET_PRODUCT), am335xevm)
 	$(MAKE) -C u-boot ARCH=arm am335x_evm_config
 endif
+ifeq ($(TARGET_PRODUCT), beagleboard)
+	$(MAKE) -C u-boot ARCH=arm omap3_beagle_config
+endif
+ifeq ($(TARGET_PRODUCT), omap3evm)
+	$(MAKE) -C u-boot ARCH=arm omap3_evm_config
+endif
+ifeq ($(TARGET_PRODUCT), flashboard)
+	$(MAKE) -C u-boot ARCH=arm flashboard_config
+endif
 	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=arm-eabi-
 
 u-boot_clean:
 	$(MAKE) -C u-boot ARCH=arm CROSS_COMPILE=arm-eabi- distclean
+
+# x-loader is required only for AM37x-based devices
+# TODO: Handle non-supported devices gracefully
+x-loader_build:
+ifeq ($(TARGET_PRODUCT), beagleboard)
+	$(MAKE) -C x-loader ARCH=arm omap3beagle_config
+endif
+ifeq ($(TARGET_PRODUCT), omap3evm)
+	$(MAKE) -C x-loader ARCH=arm omap3evm_config
+endif
+ifeq ($(TARGET_PRODUCT), flashboard)
+	$(MAKE) -C x-loader ARCH=arm flashboard_config
+endif
+	$(MAKE) -C x-loader ARCH=arm CROSS_COMPILE=arm-eabi-
+	$(ANDROID_INSTALL_DIR)/external/ti_android_utilities/am37x/signGP/signGP x-loader/x-load.bin
+	mv x-loader/x-load.bin.ift x-loader/MLO
+
+x-loader_clean:
+	$(MAKE) -C x-loader ARCH=arm CROSS_COMPILE=arm-eabi- distclean
 
 # Make a tarball for the filesystem
 fs_tarball:
