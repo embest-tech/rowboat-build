@@ -13,7 +13,7 @@ is_tests_build := $(filter tests,$(MAKECMDGOALS))
 
 # -----------------------------------------------------------------
 # Define rules to copy PRODUCT_COPY_FILES defined by the product.
-# PRODUCT_COPY_FILES contains words like <source file>:<dest file>.
+# PRODUCT_COPY_FILES contains words like <source file>:<dest file>[:<owner>].
 # <dest file> is relative to $(PRODUCT_OUT), so it should look like,
 # e.g., "system/etc/file.xml".
 # The filter part means "only eval the copy-one-file rule if this
@@ -23,8 +23,13 @@ define check-product-copy-files
 $(if $(filter %.apk, $(1)),$(error \
     Prebuilt apk found in PRODUCT_COPY_FILES: $(1), use BUILD_PREBUILT instead!))
 endef
-unique_product_copy_files_destinations :=
+# filter out the duplicate <source file>:<dest file> pairs.
+unique_product_copy_files_pairs :=
 $(foreach cf,$(PRODUCT_COPY_FILES), \
+    $(if $(filter $(unique_product_copy_files_pairs),$(cf)),,\
+        $(eval unique_product_copy_files_pairs += $(cf))))
+unique_product_copy_files_destinations :=
+$(foreach cf,$(unique_product_copy_files_pairs), \
     $(eval _src := $(call word-colon,1,$(cf))) \
     $(eval _dest := $(call word-colon,2,$(cf))) \
     $(call check-product-copy-files,$(cf)) \
@@ -36,6 +41,7 @@ $(foreach cf,$(PRODUCT_COPY_FILES), \
             $(eval $(call copy-one-file,$(_src),$(_fulldest)))) \
         $(eval ALL_DEFAULT_INSTALLED_MODULES += $(_fulldest)) \
         $(eval unique_product_copy_files_destinations += $(_dest))))
+unique_product_copy_files_pairs :=
 unique_product_copy_files_destinations :=
 
 # -----------------------------------------------------------------
@@ -352,13 +358,9 @@ INTERNAL_RAMDISK_FILES := $(filter $(TARGET_ROOT_OUT)/%, \
 
 BUILT_RAMDISK_TARGET := $(PRODUCT_OUT)/ramdisk.img
 
-ifeq ($(HAVE_SELINUX),true)
-SELINUX_DEPENDS := sepolicy file_contexts seapp_contexts
-endif
-
 # We just build this directly to the install location.
 INSTALLED_RAMDISK_TARGET := $(BUILT_RAMDISK_TARGET)
-$(INSTALLED_RAMDISK_TARGET): $(MKBOOTFS) $(INTERNAL_RAMDISK_FILES) $(SELINUX_DEPENDS) | $(MINIGZIP)
+$(INSTALLED_RAMDISK_TARGET): $(MKBOOTFS) $(INTERNAL_RAMDISK_FILES) | $(MINIGZIP)
 	$(call pretty,"Target ram disk: $@")
 	$(hide) $(MKBOOTFS) $(TARGET_ROOT_OUT) | $(MINIGZIP) > $@
 
@@ -403,7 +405,7 @@ else # TARGET_BOOTIMAGE_USE_EXT2 != true
 
 $(INSTALLED_BOOTIMAGE_TARGET): $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_FILES)
 	$(call pretty,"Target boot image: $@")
-	$(hide) $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_ARGS) --output $@
+	$(hide) $(MKBOOTIMG) $(INTERNAL_BOOTIMAGE_ARGS) $(BOARD_MKBOOTIMG_ARGS) --output $@
 	$(hide) $(call assert-max-image-size,$@,$(BOARD_BOOTIMAGE_PARTITION_SIZE),raw)
 endif # TARGET_BOOTIMAGE_USE_EXT2
 
@@ -590,6 +592,8 @@ recovery_resources_private := $(strip $(wildcard $(TARGET_DEVICE_DIR)/recovery/r
 recovery_resource_deps := $(shell find $(recovery_resources_common) \
   $(recovery_resources_private) -type f)
 recovery_fstab := $(strip $(wildcard $(TARGET_DEVICE_DIR)/recovery.fstab))
+# Named '.dat' so we don't attempt to use imgdiff for patching it.
+RECOVERY_RESOURCE_ZIP := $(TARGET_OUT)/etc/recovery-resource.dat
 
 ifeq ($(recovery_resources_private),)
   $(info No private recovery resources for TARGET_DEVICE $(TARGET_DEVICE))
@@ -644,36 +648,40 @@ $(INSTALLED_RECOVERYIMAGE_TARGET): $(MKBOOTFS) $(MKBOOTIMG) $(MINIGZIP) \
 		$(recovery_fstab) \
 		$(RECOVERY_INSTALL_OTA_KEYS)
 	@echo ----- Making recovery image ------
-	rm -rf $(TARGET_RECOVERY_OUT)
-	mkdir -p $(TARGET_RECOVERY_OUT)
-	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)
-	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/etc
-	mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/tmp
-	echo Copying baseline ramdisk...
-	cp -R $(TARGET_ROOT_OUT) $(TARGET_RECOVERY_OUT)
-	rm $(TARGET_RECOVERY_ROOT_OUT)/init*.rc
-	echo Modifying ramdisk contents...
-	cp -f $(recovery_initrc) $(TARGET_RECOVERY_ROOT_OUT)/
-	cp -f $(recovery_binary) $(TARGET_RECOVERY_ROOT_OUT)/sbin/
-	cp -rf $(recovery_resources_common) $(TARGET_RECOVERY_ROOT_OUT)/
-	$(foreach item,$(recovery_resources_private), \
+	$(hide) rm -rf $(TARGET_RECOVERY_OUT)
+	$(hide) mkdir -p $(TARGET_RECOVERY_OUT)
+	$(hide) mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/etc $(TARGET_RECOVERY_ROOT_OUT)/tmp
+	@echo Copying baseline ramdisk...
+	$(hide) cp -R $(TARGET_ROOT_OUT) $(TARGET_RECOVERY_OUT)
+	@echo Modifying ramdisk contents...
+	$(hide) rm -f $(TARGET_RECOVERY_ROOT_OUT)/init*.rc
+	$(hide) cp -f $(recovery_initrc) $(TARGET_RECOVERY_ROOT_OUT)/
+	$(hide) -cp $(TARGET_ROOT_OUT)/init.recovery.*.rc $(TARGET_RECOVERY_ROOT_OUT)/
+	$(hide) cp -f $(recovery_binary) $(TARGET_RECOVERY_ROOT_OUT)/sbin/
+	$(hide) cp -rf $(recovery_resources_common) $(TARGET_RECOVERY_ROOT_OUT)/
+	$(hide) $(foreach item,$(recovery_resources_private), \
 	  cp -rf $(item) $(TARGET_RECOVERY_ROOT_OUT)/)
-	$(foreach item,$(recovery_fstab), \
+	$(hide) $(foreach item,$(recovery_fstab), \
 	  cp -f $(item) $(TARGET_RECOVERY_ROOT_OUT)/etc/recovery.fstab)
-	cp $(RECOVERY_INSTALL_OTA_KEYS) $(TARGET_RECOVERY_ROOT_OUT)/res/keys
-	cat $(INSTALLED_DEFAULT_PROP_TARGET) $(recovery_build_prop) \
+	$(hide) cp $(RECOVERY_INSTALL_OTA_KEYS) $(TARGET_RECOVERY_ROOT_OUT)/res/keys
+	$(hide) cat $(INSTALLED_DEFAULT_PROP_TARGET) $(recovery_build_prop) \
 	        > $(TARGET_RECOVERY_ROOT_OUT)/default.prop
-	$(MKBOOTFS) $(TARGET_RECOVERY_ROOT_OUT) | $(MINIGZIP) > $(recovery_ramdisk)
-	$(MKBOOTIMG) $(INTERNAL_RECOVERYIMAGE_ARGS) --output $@
-	@echo ----- Made recovery image -------- $@
+	$(hide) $(MKBOOTFS) $(TARGET_RECOVERY_ROOT_OUT) | $(MINIGZIP) > $(recovery_ramdisk)
+	$(hide) $(MKBOOTIMG) $(INTERNAL_RECOVERYIMAGE_ARGS) $(BOARD_MKBOOTIMG_ARGS) --output $@
 	$(hide) $(call assert-max-image-size,$@,$(BOARD_RECOVERYIMAGE_PARTITION_SIZE),raw)
+	@echo ----- Made recovery image: $@ --------
+
+$(RECOVERY_RESOURCE_ZIP): $(INSTALLED_RECOVERYIMAGE_TARGET)
+	$(hide) mkdir -p $(dir $@)
+	$(hide) find $(TARGET_RECOVERY_ROOT_OUT)/res -type f | sort | zip -0qrj $@ -@
 
 else
 INSTALLED_RECOVERYIMAGE_TARGET :=
+RECOVERY_RESOURCE_ZIP :=
 endif
 
 .PHONY: recoveryimage
-recoveryimage: $(INSTALLED_RECOVERYIMAGE_TARGET)
+recoveryimage: $(INSTALLED_RECOVERYIMAGE_TARGET) $(RECOVERY_RESOURCE_ZIP)
 
 ifneq ($(BOARD_NAND_PAGE_SIZE),)
 mkyaffs2_extra_flags := -c $(BOARD_NAND_PAGE_SIZE)
@@ -691,13 +699,18 @@ endif
 # -----------------------------------------------------------------
 # system image
 #
+# Remove overridden packages from $(ALL_PDK_FUSION_FILES)
+PDK_FUSION_SYSIMG_FILES := \
+    $(filter-out $(foreach p,$(overridden_packages),$(p) %/$(p).apk), \
+        $(ALL_PDK_FUSION_FILES))
 
 INTERNAL_SYSTEMIMAGE_FILES := $(filter $(TARGET_OUT)/%, \
     $(ALL_PREBUILT) \
     $(ALL_COPIED_HEADERS) \
     $(ALL_GENERATED_SOURCES) \
-    $(ALL_DEFAULT_INSTALLED_MODULES)\
-    $(ALL_PDK_FUSION_FILES))
+    $(ALL_DEFAULT_INSTALLED_MODULES) \
+    $(PDK_FUSION_SYSIMG_FILES) \
+    $(RECOVERY_RESOURCE_ZIP))
 
 ifdef is_tests_build
 # We don't want to install tests modules to the system partition
@@ -707,7 +720,7 @@ ifdef is_tests_build
 #    $(tests_MODULES))
 endif
 
-FULL_SYSTEMIMAGE_DEPS := $(INTERNAL_SYSTEMIMAGE_FILES) $(INTERNAL_USERIMAGES_DEPS) $(SELINUX_DEPENDS)
+FULL_SYSTEMIMAGE_DEPS := $(INTERNAL_SYSTEMIMAGE_FILES) $(INTERNAL_USERIMAGES_DEPS)
 # -----------------------------------------------------------------
 # installed file list
 # Depending on anything that $(BUILT_SYSTEMIMAGE) depends on.
@@ -829,7 +842,8 @@ $(INSTALLED_PLATFORM_ZIP) : $(INTERNAL_SYSTEMIMAGE_FILES)
 	$(hide) rm -f $@
 	$(hide) cd $(dir $@) && zip -qry $(notdir $@) \
 		$(TARGET_COPY_OUT_SYSTEM) \
-		$(patsubst $(PRODUCT_OUT)/%, %, $(TARGET_OUT_NOTICE_FILES))
+		$(patsubst $(PRODUCT_OUT)/%, %, $(TARGET_OUT_NOTICE_FILES)) \
+		$(addprefix symbols/,$(PDK_SYMBOL_FILES_LIST))
 ifeq (true,$(PLATFORM_ZIP_ADD_JAVA))
 	$(hide) cd $(OUT_DIR) && zip -qry $(patsubst $(OUT_DIR)/%,%,$@) $(PDK_PLATFORM_JAVA_ZIP_CONTENTS)
 endif
@@ -1125,6 +1139,7 @@ endif
 ifdef PRODUCT_EXTRA_RECOVERY_KEYS
 	$(hide) echo "extra_recovery_keys=$(PRODUCT_EXTRA_RECOVERY_KEYS)" >> $(zip_root)/META/misc_info.txt
 endif
+	$(hide) echo "mkbootimg_args=$(BOARD_MKBOOTIMG_ARGS)" >> $(zip_root)/META/misc_info.txt
 	$(call generate-userimage-prop-dictionary, $(zip_root)/META/misc_info.txt)
 	@# Zip everything up, preserving symlinks
 	$(hide) (cd $(zip_root) && zip -qry ../$(notdir $@) .)
@@ -1156,7 +1171,7 @@ INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
 $(INTERNAL_OTA_PACKAGE_TARGET): KEY_CERT_PAIR := $(DEFAULT_KEY_CERT_PAIR)
 
-$(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS) $(SELINUX_DEPENDS)
+$(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	@echo "Package OTA: $@"
 	$(hide) ./build/tools/releasetools/ota_from_target_files -v \
 	   -p $(HOST_OUT) \
@@ -1184,7 +1199,7 @@ else
 $(INTERNAL_UPDATE_PACKAGE_TARGET): extensions := $(TARGET_RELEASETOOLS_EXTENSIONS)
 endif
 
-$(INTERNAL_UPDATE_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS) $(SELINUX_DEPENDS)
+$(INTERNAL_UPDATE_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	@echo "Package: $@"
 	$(hide) ./build/tools/releasetools/img_from_target_files -v \
 	   -s $(extensions) \
@@ -1215,10 +1230,11 @@ BUILT_TESTS_ZIP_PACKAGE := $(intermediates)/$(name).zip
 $(BUILT_TESTS_ZIP_PACKAGE): intermediates := $(intermediates)
 $(BUILT_TESTS_ZIP_PACKAGE): zip_root := $(intermediates)/$(name)
 
-# Depending on the images guarantees that the underlying
-# directories are up-to-date.
+# Depending on the image dependency files, instead of the image files itself,
+# guarantees that the underlying directories are up-to-date,
+# but don't really build the image.
 $(BUILT_TESTS_ZIP_PACKAGE): \
-    $(INSTALLED_USERDATAIMAGE_TARGET) \
+    $(INTERNAL_USERDATAIMAGE_FILES) \
     | $(ACP)
 	@echo "Package test files: $@"
 	$(hide) rm -rf $@ $(zip_root)
@@ -1285,11 +1301,15 @@ $(APPS_ZIP): $(INSTALLED_SYSTEMIMAGE)
 # A zip of emma code coverage meta files. Generated for fully emma
 # instrumented build.
 #
+ifeq (true,$(EMMA_INSTRUMENT))
 EMMA_META_ZIP := $(PRODUCT_OUT)/emma_meta.zip
-$(EMMA_META_ZIP): $(INSTALLED_SYSTEMIMAGE)
+# the dependency will be set up later in build/core/main.mk.
+$(EMMA_META_ZIP) :
 	@echo "Collecting Emma coverage meta files."
 	$(hide) find $(TARGET_COMMON_OUT_ROOT) -name "coverage.em" | \
 		zip -@ -q $@
+
+endif # EMMA_INSTRUMENT=true
 
 # -----------------------------------------------------------------
 # dalvik something
@@ -1298,7 +1318,7 @@ dalvikfiles: $(INTERNAL_DALVIK_MODULES)
 
 # -----------------------------------------------------------------
 # The emulator package
-
+ifeq ($(BUILD_EMULATOR),true)
 INTERNAL_EMULATOR_PACKAGE_FILES += \
         $(HOST_OUT_EXECUTABLES)/emulator$(HOST_EXECUTABLE_SUFFIX) \
         prebuilts/qemu-kernel/$(TARGET_ARCH)/kernel-qemu \
@@ -1314,6 +1334,7 @@ $(INTERNAL_EMULATOR_PACKAGE_TARGET): $(INTERNAL_EMULATOR_PACKAGE_FILES)
 	@echo "Package: $@"
 	$(hide) zip -qj $@ $(INTERNAL_EMULATOR_PACKAGE_FILES)
 
+endif
 # -----------------------------------------------------------------
 # Old PDK stuffs, retired
 # The pdk package (Platform Development Kit)
@@ -1409,7 +1430,8 @@ deps := \
 	$(atree_dir)/sdk.atree \
 	$(sdk_tools_atree_files) \
 	$(HOST_OUT_EXECUTABLES)/atree \
-    $(HOST_OUT_EXECUTABLES)/line_endings
+	$(ALL_HOST_INSTALLED_FILES) \
+	$(HOST_OUT_EXECUTABLES)/line_endings
 
 INTERNAL_SDK_TARGET := $(sdk_dir)/$(sdk_name).zip
 $(INTERNAL_SDK_TARGET): PRIVATE_NAME := $(sdk_name)
@@ -1433,6 +1455,7 @@ $(INTERNAL_SDK_TARGET): $(deps)
 	done; \
 	if [ $$FAIL ]; then exit 1; fi
 	$(hide) ( \
+		ATREE_STRIP="strip -x" \
 		$(HOST_OUT_EXECUTABLES)/atree \
 		$(addprefix -f ,$(PRIVATE_INPUT_FILES)) \
 			-m $(PRIVATE_DEP_FILE) \
@@ -1487,6 +1510,7 @@ $(INTERNAL_FINDBUGS_HTML_TARGET): $(INTERNAL_FINDBUGS_XML_TARGET)
 # These are some additional build tasks that need to be run.
 include $(sort $(wildcard $(BUILD_SYSTEM)/tasks/*.mk))
 -include $(sort $(wildcard vendor/*/build/tasks/*.mk))
+-include $(sort $(wildcard device/*/build/tasks/*.mk))
 
 # -----------------------------------------------------------------
 # Create SDK repository packages. Must be done after tasks/* since
