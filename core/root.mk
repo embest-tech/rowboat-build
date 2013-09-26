@@ -45,10 +45,15 @@ rowboat: sgx
 CLEAN_RULE = sgx_clean kernel_clean clean
 else
 ifeq ($(TARGET_PRODUCT), devkit8600)
+rowboat: sgx wl12xx_compat
+CLEAN_RULE = sgx_clean kernel_clean clean
+else
+ifeq ($(TARGET_PRODUCT), sbc8600)
 rowboat: sgx
 CLEAN_RULE = sgx_clean kernel_clean clean
 else
 rowboat: kernel_build
+endif
 endif
 endif
 endif
@@ -87,6 +92,9 @@ ifeq ($(TARGET_PRODUCT), beaglebone)
 endif
 ifeq ($(TARGET_PRODUCT), devkit8600)
 	$(MAKE) -C kernel ARCH=arm devkit8600_android_defconfig
+endif
+ifeq ($(TARGET_PRODUCT), sbc8600)
+        $(MAKE) -C kernel ARCH=arm sbc8600_android_defconfig
 endif
 endif
 	$(MAKE) -C kernel ARCH=arm CROSS_COMPILE=arm-eabi- uImage
